@@ -14,10 +14,10 @@ class HashTableBaseTest {
 
     HashTable<String, String> newTable() {
         // Use implementation
-        return null;
+        return new newHashTable<>();
     }
 
-    @Test
+    @Test //Yes
     void emptyTable() {
         HashTable<String, String> table = newTable();
         assertNull(table.get(""));
@@ -60,7 +60,7 @@ class HashTableBaseTest {
         assertEquals(table.get("testStringKey"), "testStringValue");
     }
 
-    @Test
+    @Test //yes
     void remove() {
         HashTable<String, String> table = newTable();
         assertNull(table.remove("case when HashTable is empty"));
@@ -108,7 +108,7 @@ class HashTableBaseTest {
         assertTrue(table.isEmpty());
     }
 
-    @Test
+    @Test //Yes
     void contains() {
         HashTable<String, String> table = newTable();
 
@@ -132,7 +132,7 @@ class HashTableBaseTest {
         assertFalse(table.containsKey("testStringKey1"));
     }
 
-    @Test
+    @Test //Yes
     void empty() {
         HashTable<String, String> table = newTable();
 
