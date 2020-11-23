@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class newHashTable<Key, Value> implements HashTable<Key, Value> {
 
-    private class Element {
+    private static class Element<Key, Value> {
         Key key;
         Value value;
         Element next;
@@ -19,7 +19,7 @@ public class newHashTable<Key, Value> implements HashTable<Key, Value> {
 
     private int size = 16;
     private int count = 0;
-    private Object[] table = new Object[size];
+    private Element<Key,Value>[] table = new Element[size];
 
 
 
@@ -30,8 +30,8 @@ public class newHashTable<Key, Value> implements HashTable<Key, Value> {
         return null;
     }
 
-    private Value search(Object element, Key key) {
-        Element temp = (Element)element;
+    private Value search(Element element, Key key) {
+        Element<Key,Value> temp = element;
         if (temp.key.equals(key))
             return temp.value;
         if (temp.next == null) return null;
@@ -43,22 +43,23 @@ public class newHashTable<Key, Value> implements HashTable<Key, Value> {
         int hash = hash(key);
         if (table[hash] == null) return false;
         Value value = search(table[hash], key);
-        return value == null ? false : true;
+        return value != null;
     }
 
     @Override
     public void put(@NotNull Key key, @NotNull Value value) {
         int hash = hash(key);
-        if (table[hash] == null) {
+        if (table[hash] != null) {
+            add(table[hash], key, value);
+        } else {
             table[hash] = new Element(key, value);
             count++;
-            return;
         }
-        add(table[hash], key, value);
+        if ((float)count / size > 0.75) resize();
     }
 
-    private void add(Object element, Key key, Value value) {
-        Element temp = (Element)element;
+    private void add(Element element, Key key, Value value) {
+        Element temp = element;
         if (temp.key.equals(key)) {
             temp.value = value;
         } else {
@@ -75,13 +76,13 @@ public class newHashTable<Key, Value> implements HashTable<Key, Value> {
     public @Nullable Value remove(@NotNull Key key) {
         int hash = hash(key);
         if (table[hash] == null) return null;
-        Element element1 = (Element)table[hash];
+        Element<Key,Value> element1 = table[hash];
         if (element1.key.equals(key)) {
             table[hash] = element1.next;
             count--;
             return element1.value;
         }
-        Element element2;
+        Element<Key, Value> element2;
         while (element1.next != null) {
             element2 = element1.next;
             if (element2.key.equals(key)) {
@@ -100,15 +101,15 @@ public class newHashTable<Key, Value> implements HashTable<Key, Value> {
 
     @Override
     public boolean isEmpty() {
-        return count == 0 ? true : false;
+        return count == 0;
     }
 
     private int hash(Key key) {
-        return key.hashCode() % size;
+        return (key.hashCode() & 0x7fffffff)  % size;
     }
 
     private void resize() {
-        Object[] newTable = new Object[size*2];
+        Element<Key,Value>[] newTable = new Element[size*2];
         for (int i = 0; i < size; i++) {
             if (table[i] != null)
                 newTable[i] = table[i];
