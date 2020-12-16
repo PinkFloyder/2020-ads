@@ -8,16 +8,23 @@ public class Task1 {
 
     static boolean[] used;
     static int[] tin, fup;
-    static ArrayList<Integer>[] g;
+    static ArrayList<Node>[] g;
     static int timer;
     static int n;
     static int count;
     static ArrayList<Integer> res = new ArrayList<>();
 
-    static Node[] nodes;
 
     static class Node {
-        Map<Integer, Integer> map = new HashMap<>();
+
+        int i;
+        int where;
+
+        public Node(int where, int i) {
+            this.i = i;
+            this.where = where;
+        }
+
     }
 
 
@@ -25,38 +32,31 @@ public class Task1 {
         FastScanner fastScanner = new FastScanner(System.in);
         n = fastScanner.nextInt();
         int m = fastScanner.nextInt();
-        g = new ArrayList[n];
+        g = new ArrayList[n + 1];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i <= n; i++) {
             g[i] = new ArrayList<>();
         }
 
-        nodes = new Node[n];
-        for (int i = 0; i < n; i++)
-            nodes[i] = new Node();
-
-        used = new boolean[n];
-        tin = new int[n];
-        fup = new int[n];
+        used = new boolean[n + 1];
+        tin = new int[n + 1];
+        fup = new int[n + 1];
 
 
         for (int i = 1; i <= m; i++) {
-            int a1 = fastScanner.nextInt() - 1;
-            int a2 = fastScanner.nextInt() - 1;
+            int a1 = fastScanner.nextInt() ;
+            int a2 = fastScanner.nextInt() ;
 
-            g[a1].add(a2);
-            g[a2].add(a1);
-            nodes[a1].map.put(a2, i);
-            nodes[a2].map.put(a1, i);
+            g[a1].add(new Node(a2, i));
+            g[a2].add(new Node(a1, i));
         }
 
         timer = 0;
-        for (int i = 0; i < n; i++)
-            used[i] = false;
-
-        for (int i = 0; i < n; i++)
-            if (!used[i])
-                DFS (i, -1);
+        for (int i = 1; i < g.length; ++i) {
+            if (!used[i]) {
+                DFS(i, -1);
+            }
+        }
 
         System.out.println(count);
         if (res.size() != 0) {
@@ -67,18 +67,19 @@ public class Task1 {
     static void DFS(int v, int p) {
         used[v] = true;
         tin[v] = fup[v] = timer++;
-        for (int i = 0; i < g[v].size(); i++) {
-            int to = g[v].get(i);
-            if (to == p) continue;
+        for (int i = 0; i < g[v].size(); ++i) {
+            int to = g[v].get(i).where;
+            if (to == p) {
+                continue;
+            }
             if (used[to]) {
                 fup[v] = Math.min(fup[v], tin[to]);
-            }
-            else {
+            } else {
                 DFS(to, v);
                 fup[v] = Math.min(fup[v], fup[to]);
                 if (fup[to] > tin[v]) {
                     count++;
-                    res.add(nodes[tin[v]].map.get(fup[to]));
+                    res.add(g[v].get(i).i);
                 }
             }
         }
